@@ -1,4 +1,8 @@
-# saluniAPI
+# SaluniAPI
+
+## Description:
+
+The API allows users to Book sessions with their favorite Hairdresser or barber
 
 ## Structure of the files
 
