@@ -2,6 +2,7 @@
 
 ## Structure of the files
 
+```
 booking_api/
 ├── main.py # Entry point of application
 ├── requirements.txt # Dependencies
@@ -41,3 +42,4 @@ booking_api/
 │ ├── **init**.py
 │ └── datetime_utils.py
 └── tests/ # Unit and integration tests
+```
