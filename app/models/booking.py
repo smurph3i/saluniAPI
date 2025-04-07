@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, DateTime
-from database import Base
+from ..database.database import Base
 
 
 class BookingDB(Base):
