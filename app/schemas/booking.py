@@ -12,3 +12,10 @@ class BookingBase(BaseModel):
 
 class BookingCreate(BookingBase):
     pass
+
+
+class Booking(BookingBase):
+    id: int
+
+    class Config:
+        orm_mode = True

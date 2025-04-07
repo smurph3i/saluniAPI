@@ -6,6 +6,26 @@ The API allows users to Book sessions with their favorite Hairdresser or barber
 
 ## Structure of the files
 
+### Current Structure
+
+```
+saluni_api/
+├──app
+│   ├── __init__.py
+│   ├── main.py
+│   ├── database/
+│   │   ├── __init__.py
+│   │   └── database.py
+│   └── models/
+│       ├── __init__.py
+│       ├── booking.py
+│   └── schemas/
+│      ├── __init__.py
+│      └── booking.py
+```
+
+### Aimed Structure
+
 ```
 booking_api/
 ├── main.py                 # Entry point of application
@@ -45,5 +65,5 @@ booking_api/
 │   └── utils/              # Utilities and helpers
 │       ├── __init__.py
 │       └── datetime_utils.py
-└── tests/                  # Unit and integration testsration tests
+└── tests/                  # Unit and integration tests ration tests
 ```
