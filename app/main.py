@@ -7,7 +7,6 @@ from .database.database import get_db, engine
 from .models import booking as booking_models
 from .schemas import booking as booking_schemas
 
-booking_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Saluni Booking API",

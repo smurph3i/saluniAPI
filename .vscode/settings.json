@@ -5,6 +5,7 @@
         "Pydantic",
         "Saluni",
         "saluniapi",
-        "sessionmaker"
+        "sessionmaker",
+        "sqlalchemy"
     ]
 }
