@@ -4,6 +4,13 @@
 
 The API allows users to Book sessions with their favorite Hairdresser or barber
 
+## Features
+
+- Create, read, update, and delete bookings
+- Filter bookings by service type
+- Cancel existing bookings
+- Pagination support
+
 ## Structure of the files
 
 ### Current Structure

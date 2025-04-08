@@ -7,7 +7,8 @@ class BookingBase(BaseModel):
     booking_id: int
     start_time: datetime
     end_time: datetime
-    booking_type: int
+    service_type: int
+    notes: Optional[str] = None  # Optional notes field
 
 
 class BookingCreate(BookingBase):
