@@ -1,0 +1,22 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__
+
+# Virtual environment directories
+venv/
+env/
+ENV/
+
+# .env file for sensitive data
+.env
+
+# Database file
+*.sqlite3
+
+# IDE and editor configurations
+.vscode/
+.idea/
+
+# Log files
+*.log
