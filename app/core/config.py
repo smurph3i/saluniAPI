@@ -1,33 +1,23 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict  # New in v2
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "SaluniAPI"
-    DEBUG: bool = True
-    API_V1_PREFIX: str = "/api/v1"
+    project_name: str = Field(default="SaluniAPI", alias="PROJECT_NAME")
+    api_version: str = Field(default="v1", alias="API_VERSION")
 
-    POSTGRES_USER: str = "random_user"  # Placeholder
-    POSTGRES_PASSWORD: str = "random_password"  # Placeholder
-    POSTGRES_DB: str = "saluniAPI"
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: str = 5433
+    database_url: str = Field(alias="DATABASE_URL")
 
-    # Read configuration from .env file (model_config in Pydantic v2)
-    model_config = SettingsConfigDict(
-        env_file=".env",  # Load environment variables from .env
-        case_sensitive=True
-    )
+    secret_key: str = Field(alias="SECRET_KEY")
+    algorithm: str = Field(default="HS256", alias="ALGORITHM")
+    access_token_expire_minutes: int = Field(
+        default=30, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
 
-    @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return (
-            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-        )
+    model_config = {
+        "populate_by_name": True,
+        "env_file": ".env",
+        "extra": "ignore",
+    }
 
 
-# Instantiate settings object to use the loaded configuration
 settings = Settings()
-print(settings.project_name)  # Should print "SaluniAPI"
-# Should print the full DB URI using .env values
-print(settings.sqlalchemy_database_uri)

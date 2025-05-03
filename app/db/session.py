@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.db.base import Base
 from app.core.config import settings
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:demo123@localhost:5433/saluniAPI"
+
+
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
