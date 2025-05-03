@@ -12,7 +12,7 @@ ENV/
 .env
 
 # Database file
-*.sqlite3
+*.postgresql
 
 # IDE and editor configurations
 .vscode/
