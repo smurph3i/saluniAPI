@@ -30,6 +30,8 @@ SaluniAPI/
 │   │   ├── user.py 
 │   │   ├── service.py 
 │   ├── tests/              # Pytest tests 
+│   │   ├── conftest.py
+│   │   └── test_health.py
 │   │   ├── test_auth.py 
 │   │   └── test_service.py 
 ├── alembic/                # DB migrations 
