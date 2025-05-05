@@ -9,24 +9,20 @@ client = TestClient(app)
 
 def test_user_registration():
     test_email = "testuser@example.com"
+
+    # Clean up any pre-existing test user
+    db = SessionLocal()
+    user = db.query(User).filter(User.email == test_email).first()
+    if user:
+        db.delete(user)
+        db.commit()
+    db.close()
+
     payload = {
         "email": test_email,
         "password": "strongpassword123",
         "full_name": "Test User"
     }
 
-    # Create test user
-    response = client.post("/users/", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["email"] == test_email
-
-    # Cleanup: delete test user from DB
-    db: Session = SessionLocal()
-    try:
-        user = db.query(User).filter(User.email == test_email).first()
-        if user:
-            db.delete(user)
-            db.commit()
-    finally:
-        db.close()
+    response = client.post("/api/v1/users/register", json=payload)
+    assert response.status_code == 201

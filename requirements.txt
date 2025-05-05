@@ -10,3 +10,4 @@ alembic
 psycopg2-binary
 pytest
 httpx
+pydantic[email]
