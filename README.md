@@ -20,12 +20,13 @@ SaluniAPI/
 │   │   ├── token.py 
 │   ├── api/                # API routing 
 │   │   ├── deps.py         # Dependencies (e.g. auth guards) 
-│   │   ├── routes/ 
-│   │   │ ├── health.py
-│   │   │ ├── auth.py 
-│   │   │ ├── user.py 
-│   │   │ ├── service.py 
-│   │   │ └── appointment.py 
+│   │   ├── v1/
+│   │   │   ├── routes/ 
+│   │   │   │   ├── health.py
+│   │   │   │   ├── auth.py 
+│   │   │   │   ├── user.py 
+│   │   │   │   ├── service.py 
+│   │   │       └── appointment.py 
 │   ├── crud/               # CRUD operations 
 │   │   ├── user.py 
 │   │   ├── service.py 

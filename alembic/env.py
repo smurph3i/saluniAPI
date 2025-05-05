@@ -5,7 +5,7 @@ from alembic import context
 # Import models to register with Base.metadata
 from app import models  # pylint: disable=unused-import
 # This ensures Alembic sees your models
-from app.db.base import Base
+from app.db.base_class import Base
 from app.core.config import settings  # This loads .env via Pydantic settings
 
 
