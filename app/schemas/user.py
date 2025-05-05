@@ -11,6 +11,10 @@ class UserCreate(UserBase):
     password: str
 
 
+class UserIn(UserBase):
+    password: str
+
+
 class UserOut(UserBase):
     id: int
     is_active: bool
