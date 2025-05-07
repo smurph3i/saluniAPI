@@ -1,1 +1,3 @@
-from .user import User  # 👈 Required so models get imported by `from app import models`
+from .user import User  # import all your models here
+
+__all__ = ["User"]
