@@ -7,24 +7,21 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
 from app.db.base_class import Base
-from app.db.session import engine
-from app.main import app
 from app.db.deps import get_db
+from app.main import app
 from app.core.config import settings
+from app import models  # this is needed to register the models
 
-from app import models  # 👈 This registers all models with Base
-
-
-# Set the TESTING environment variable
+# Ensure TESTING=1 is set
 os.environ["TESTING"] = "1"
 
-# Create engine and session using the test database URL
-engine = create_engine(settings.actual_database_url, connect_args={
-                       "check_same_thread": False} if "sqlite" in settings.actual_database_url else {})
+# Create test engine using actual test DB URL
+engine = create_engine(settings.actual_database_url)
+
 TestingSessionLocal = sessionmaker(
     autocommit=False, autoflush=False, bind=engine)
 
-# Override the get_db dependency
+# Override the dependency
 
 
 def override_get_db():
@@ -37,17 +34,18 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-# Pytest fixture for test client
+# ✅ Pytest fixture to set up schema and client
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def client():
-    # Recreate the test DB schema
+    # Make sure all models are registered
+    print("Creating tables in test DB...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
     with TestClient(app) as c:
         yield c
 
-    # Optionally clean up again after tests
+    # Optionally clean up
     Base.metadata.drop_all(bind=engine)
