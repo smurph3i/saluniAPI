@@ -1,6 +1,7 @@
 from app.db.session import SessionLocal
 from app.models import User
-from app.core.security import get_password_hash, create_access_token
+from app.core.security import get_password_hash
+from app.core.token_service import token_service
 
 # Helper function to register a user
 
@@ -45,7 +46,7 @@ class TestUser:
         db_session.commit()
         db_session.refresh(user)
 
-        token = create_access_token(subject=user.id)
+        token = token_service.create_access_token(subject=user.id)
 
         response = client.get(
             "/api/v1/users/profile",

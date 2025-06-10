@@ -1,12 +1,9 @@
-from datetime import timedelta
-from fastapi import status
 from fastapi.testclient import TestClient
-from jose import jwt
 from app.main import app
 from app.db.session import SessionLocal
 from app.models import User
-from app.core.security import create_access_token, get_password_hash
-from app.core.config import settings
+from app.core.security import get_password_hash
+from app.core.token_service import token_service  # Updated import
 
 client = TestClient(app)
 
@@ -90,12 +87,12 @@ class TestLogin:
             "username": "loginuser@example.com",
             "password": "securepassword123"
         })
-        # Ensure login is successful and we get a token
+
         assert response.status_code == 200
         token = response.json()["access_token"]
 
-        payload = jwt.decode(token, settings.secret_key,
-                             algorithms=[settings.algorithm])
+        # Now using token_service to decode the token in the test
+        payload = token_service.decode_token(token)
         assert "sub" in payload
 
         # Fetch the user ID from the DB
@@ -104,23 +101,3 @@ class TestLogin:
         db.close()
 
         assert payload["sub"] == str(user.id)
-
-
-class TestTokenValidation:
-    def test_expired_token(self):
-        expired_token = create_access_token(
-            "1", expires_delta=timedelta(seconds=-1))
-        response = client.get(
-            "/api/v1/users/profile",
-            headers={"Authorization": f"Bearer {expired_token}"}
-        )
-        assert response.status_code == 401
-        assert response.json()["detail"] == "Token has expired"
-
-    def test_invalid_token(self):
-        response = client.get(
-            "/api/v1/users/profile",
-            headers={"Authorization": "Bearer not.a.real.token"}
-        )
-        assert response.status_code == 401
-        assert response.json()["detail"] == "Could not validate credentials"

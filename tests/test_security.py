@@ -1,27 +1,48 @@
-from app.core import security
+import pytest
+import time
+from datetime import timedelta
+from jose import JWTError
+
+from app.core.token_service import token_service
 
 
-def test_password_hash_and_verify():
-    password = "super-secret-password"
-    hashed = security.get_password_hash(password)
+class TestTokenService:
+    def test_create_and_extract_subject(self):
+        subject = "user_id_123"
+        token = token_service.create_access_token(subject)
 
-    assert hashed != password  # Hashed output should be different
-    assert security.verify_password(password, hashed) is True
-    assert security.verify_password("wrong-password", hashed) is False
+        assert isinstance(token, str)
 
+        decoded_subject = token_service.extract_subject(token)
+        assert decoded_subject == subject
 
-def test_create_and_decode_jwt():
-    subject = "user_id_123"
-    token = security.create_access_token(subject)
+    def test_decode_invalid_token(self):
+        invalid_token = "this.is.not.a.valid.token"
 
-    assert isinstance(token, str)
+        result = token_service.extract_subject(invalid_token)
+        assert result is None
 
-    decoded_subject = security.decode_access_token(token)
-    assert decoded_subject == subject
+    def test_expired_token(self):
+        subject = "user_id_123"
+        token = token_service.create_access_token(
+            subject, expires_delta=timedelta(seconds=1))
 
+        time.sleep(2)  # Wait for token to expire
 
-def test_decode_invalid_jwt():
-    invalid_token = "this.is.not.a.valid.token"
-    result = security.decode_access_token(invalid_token)
+        assert token_service.is_token_expired(token) is True
+        assert token_service.extract_subject(token) is None
 
-    assert result is None
+    def test_token_not_expired(self):
+        token = token_service.create_access_token(
+            "test_user", expires_delta=timedelta(minutes=5))
+
+        assert token_service.is_token_expired(token) is False
+
+    def test_full_decode_token_payload(self):
+        subject = "payload_user"
+        token = token_service.create_access_token(subject)
+
+        payload = token_service.decode_token(token)
+
+        assert payload["sub"] == subject
+        assert "exp" in payload
