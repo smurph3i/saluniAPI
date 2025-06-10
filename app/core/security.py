@@ -30,13 +30,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # JWT Token functions
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
-    if expires_delta:
-        expire = datetime.now(tz=timezone.utc) + \
-            timedelta(minutes=expires_delta)
-    else:
-        expire = datetime.now(
-            tz=timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
+def create_access_token(subject: Union[str, Any], expires_delta: timedelta | None = None) -> str:
+    expire = datetime.now(tz=timezone.utc) + (
+        expires_delta if expires_delta else timedelta(
+            minutes=settings.access_token_expire_minutes)
+    )
 
     to_encode = {
         "exp": expire,

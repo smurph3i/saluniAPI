@@ -107,8 +107,9 @@ class TestLogin:
 
 
 class TestTokenValidation:
-    def test_expired_token():
-        expired_token = create_access_token("1", expires_delta=-1)
+    def test_expired_token(self):
+        expired_token = create_access_token(
+            "1", expires_delta=timedelta(seconds=-1))
         response = client.get(
             "/protected",
             headers={"Authorization": f"Bearer {expired_token}"}
@@ -117,11 +118,9 @@ class TestTokenValidation:
         assert response.json()["detail"] == "Token has expired"
 
     def test_invalid_token(self):
-        # A garbage token that cannot be decoded
-        invalid_token = "this.is.not.a.valid.token"
         response = client.get(
             "/protected",
-            headers={"Authorization": f"Bearer {invalid_token}"}
+            headers={"Authorization": "Bearer not.a.real.token"}
         )
         assert response.status_code == 401
         assert response.json()["detail"] == "Could not validate credentials"
