@@ -3,7 +3,7 @@ from app.main import app
 from app.db.session import SessionLocal
 from app.models import User
 from app.core.security import get_password_hash
-from app.core.token_service import token_service  # Updated import
+from app.core.token_service import token_service
 
 client = TestClient(app)
 
@@ -83,6 +83,10 @@ class TestLogin:
             db_session.commit()
 
     def test_token_payload(self):
+        # Register and log in the user
+        register_user("loginuser@example.com",
+                      "securepassword123", "Login User")
+
         response = client.post("/api/v1/login", data={
             "username": "loginuser@example.com",
             "password": "securepassword123"
@@ -91,13 +95,16 @@ class TestLogin:
         assert response.status_code == 200
         token = response.json()["access_token"]
 
-        # Now using token_service to decode the token in the test
+        # Decode the JWT token using token_service
         payload = token_service.decode_token(token)
-        assert "sub" in payload
 
-        # Fetch the user ID from the DB
+        assert "sub" in payload
+        user_id_from_token = payload["sub"]
+
+        # Fetch the user from the DB to verify the ID
         db = SessionLocal()
         user = db.query(User).filter_by(email="loginuser@example.com").first()
         db.close()
 
-        assert payload["sub"] == str(user.id)
+        assert user is not None
+        assert str(user.id) == user_id_from_token

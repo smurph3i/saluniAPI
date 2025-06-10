@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.schemas.token import Token
-from app.core import security
+from app.core.token_service import token_service
 from app.db.deps import get_db
 
 router = APIRouter()
@@ -26,5 +26,5 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
             detail="Inactive user",
         )
 
-    token = security.create_access_token(subject=user.id)
+    token = token_service.create_access_token(subject=user.id)
     return {"access_token": token, "token_type": "bearer"}

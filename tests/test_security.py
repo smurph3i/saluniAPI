@@ -1,7 +1,5 @@
-import pytest
 import time
 from datetime import timedelta
-from jose import JWTError
 
 from app.core.token_service import token_service
 
