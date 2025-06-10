@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from typing import Union, Any
+import logging
 
 from jose import jwt, JWTError, ExpiredSignatureError
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class TokenService:
@@ -24,9 +27,17 @@ class TokenService:
         }
         return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
 
-    def decode_token(self, token: str) -> dict:
-        """Return full decoded payload or raise JWTError."""
-        return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+    def decode_token(self, token: str) -> Union[dict, None]:
+        try:
+            payload = jwt.decode(token, self.secret_key,
+                                 algorithms=[self.algorithm])
+            return payload
+        except ExpiredSignatureError:
+            logger.warning("JWT decode failed: Token has expired")
+            return None
+        except JWTError as e:
+            logger.warning(f"JWT decode failed: {str(e)}")
+            return None
 
     def extract_subject(self, token: str) -> Union[str, None]:
         """Return 'sub' from token or None if invalid."""

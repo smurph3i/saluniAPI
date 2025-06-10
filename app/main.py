@@ -1,5 +1,9 @@
+import logging
 from fastapi import FastAPI
 from app.api.v1.routes import health, users, login
+
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="SaluniAPI")
 
