@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from jose import jwt
 from app.main import app
@@ -100,4 +99,4 @@ class TestLogin:
         user = db.query(User).filter_by(email="loginuser@example.com").first()
         db.close()
 
-        assert payload["sub"] == str(user.id)  # ✅ Expect user ID as string
+        assert payload["sub"] == str(user.id)
