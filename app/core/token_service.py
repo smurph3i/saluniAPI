@@ -39,7 +39,7 @@ class TokenService:
             logger.warning("JWT decode failed: Token has expired")
             return None
         except JWTError as e:
-            logger.warning(f"JWT decode failed: {str(e)}")
+            logger.warning("JWT decode failed: %s", e)
             return None
 
     def extract_subject(self, token: str) -> Union[str, None]:
