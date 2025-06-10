@@ -15,20 +15,20 @@ class TestTokenService:
         assert decoded_subject == subject
 
     def test_decode_invalid_token(self):
-        invalid_token = "this.is.not.a.valid.token"
+        invalid_token = "this.is.not.valid"
+        payload = token_service.decode_token(invalid_token)
 
-        result = token_service.extract_subject(invalid_token)
-        assert result is None
+        assert payload is None
 
     def test_expired_token(self):
-        subject = "user_id_123"
-        token = token_service.create_access_token(
-            subject, expires_delta=timedelta(seconds=1))
+        subject = "testuser"
+        expired_token = token_service.create_access_token(
+            subject,
+            expires_delta=timedelta(seconds=-1)  # already expired
+        )
+        payload = token_service.decode_token(expired_token)
 
-        time.sleep(2)  # Wait for token to expire
-
-        assert token_service.is_token_expired(token) is True
-        assert token_service.extract_subject(token) is None
+        assert payload is None
 
     def test_token_not_expired(self):
         token = token_service.create_access_token(
