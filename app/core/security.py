@@ -1,16 +1,14 @@
-from datetime import datetime, timedelta, timezone
-from typing import Union, Any
+from typing import Union
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from jose import jwt, JWTError, ExpiredSignatureError
+from jose import ExpiredSignatureError, JWTError
 
-from app.core.config import settings
 from app.db.deps import get_db
 from app.models import User
-
+from app.core.token_service import token_service
 
 # Password hashing setup
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,27 +22,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta | None = None) -> str:
-    expire = datetime.now(tz=timezone.utc) + (
-        expires_delta if expires_delta else timedelta(
-            minutes=settings.access_token_expire_minutes)
-    )
-    to_encode = {
-        "exp": expire,
-        "sub": str(subject)
-    }
-    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
-
-
-def decode_access_token(token: str) -> Union[str, None]:
-    try:
-        payload = jwt.decode(token, settings.secret_key,
-                             algorithms=[settings.algorithm])
-        return payload.get("sub")
-    except JWTError:
-        return None
-
-
+# OAuth2 bearer token scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
 
 
@@ -62,10 +40,9 @@ def get_current_user(
         detail="Token has expired",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
-        payload = jwt.decode(token, settings.secret_key,
-                             algorithms=[settings.algorithm])
-        user_id: str = payload.get("sub")
+        user_id = token_service.extract_subject(token)
         if user_id is None:
             raise credentials_exception
     except ExpiredSignatureError as exc:
