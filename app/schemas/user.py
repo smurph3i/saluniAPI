@@ -21,3 +21,13 @@ class UserOut(UserBase):
     is_superuser: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserProfile(BaseModel):
+    id: int
+    email: str
+    full_name: str
+    is_active: bool
+
+    class Config:
+        orm_mode = True

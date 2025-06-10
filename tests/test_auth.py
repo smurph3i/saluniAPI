@@ -88,6 +88,8 @@ class TestLogin:
             "username": "loginuser@example.com",
             "password": "securepassword123"
         })
+        # Ensure login is successful and we get a token
+        assert response.status_code == 200
         token = response.json()["access_token"]
 
         payload = jwt.decode(token, settings.secret_key,
