@@ -29,5 +29,4 @@ class UserProfile(BaseModel):
     full_name: str
     is_active: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
