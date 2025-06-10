@@ -1,19 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from typing import Union, Any
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from jose import JWTError, jwt, ExpiredSignatureError
+from jose import jwt, JWTError, ExpiredSignatureError
 
 from app.core.config import settings
 from app.db.deps import get_db
 from app.models import User
-
-# Secret key and algorithm for encoding and decoding JWT tokens
-SECRET_KEY = settings.SECRET_KEY
-ALGORITHM = settings.ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 # Password hashing setup
@@ -27,22 +23,17 @@ def get_password_hash(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-# JWT Token functions
-
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta | None = None) -> str:
     expire = datetime.now(tz=timezone.utc) + (
         expires_delta if expires_delta else timedelta(
             minutes=settings.access_token_expire_minutes)
     )
-
     to_encode = {
         "exp": expire,
         "sub": str(subject)
     }
-    encoded_jwt = jwt.encode(
-        to_encode, settings.secret_key, algorithm=settings.algorithm)
-    return encoded_jwt
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 
 def decode_access_token(token: str) -> Union[str, None]:
@@ -51,24 +42,6 @@ def decode_access_token(token: str) -> Union[str, None]:
                              algorithms=[settings.algorithm])
         return payload.get("sub")
     except JWTError:
-        return None
-
-# Function to decode and verify JWT token
-
-
-def verify_token(token: str) -> Union[User, None]:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            return None
-        # Here you would query your DB to get the user
-        # For example:
-        user = User.get_by_username(username)  # You should define this method
-        return user
-    except JWTError:
-        return None
-    except Exception:
         return None
 
 
@@ -103,4 +76,5 @@ def get_current_user(
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
         raise credentials_exception
+
     return user

@@ -111,7 +111,7 @@ class TestTokenValidation:
         expired_token = create_access_token(
             "1", expires_delta=timedelta(seconds=-1))
         response = client.get(
-            "/protected",
+            "/api/v1/users/profile",
             headers={"Authorization": f"Bearer {expired_token}"}
         )
         assert response.status_code == 401
@@ -119,7 +119,7 @@ class TestTokenValidation:
 
     def test_invalid_token(self):
         response = client.get(
-            "/protected",
+            "/api/v1/users/profile",
             headers={"Authorization": "Bearer not.a.real.token"}
         )
         assert response.status_code == 401
