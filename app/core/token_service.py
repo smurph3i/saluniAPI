@@ -27,10 +27,13 @@ class TokenService:
         }
         return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
 
-    def decode_token(self, token: str) -> Union[dict, None]:
+    def decode_token(self, token: str, expected_type: str = "access") -> Union[dict, None]:
         try:
             payload = jwt.decode(token, self.secret_key,
                                  algorithms=[self.algorithm])
+            if payload.get("type", "access") != expected_type:
+                logger.warning("JWT type mismatch")
+                return None
             return payload
         except ExpiredSignatureError:
             logger.warning("JWT decode failed: Token has expired")
@@ -59,6 +62,20 @@ class TokenService:
         except JWTError:
             return False
         return False
+
+    def create_refresh_token(self, subject: Union[str, Any], expires_delta: timedelta | None = None) -> str:
+        expire = datetime.now(tz=timezone.utc) + (
+            expires_delta if expires_delta else timedelta(
+                days=7)  # Default 7-day expiry
+        )
+
+        to_encode = {
+            "exp": expire,
+            "sub": str(subject),
+            "type": "refresh"
+        }
+
+        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
 
 
 token_service = TokenService()
