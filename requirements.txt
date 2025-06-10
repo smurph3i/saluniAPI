@@ -12,3 +12,4 @@ pytest
 httpx
 pydantic[email]
 python-multipart
+logging
