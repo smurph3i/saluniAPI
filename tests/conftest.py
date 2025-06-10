@@ -49,3 +49,12 @@ def client():
 
     # Optionally clean up
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def db_session():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

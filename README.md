@@ -28,8 +28,8 @@ SaluniAPI/
 │   │   │   │   ├── service.py 
 │   │   │   │    └── appointment.py 
 │   ├── crud/               # CRUD operations 
-│   │   ├── user.py 
-│   │   ├── service.py 
+│   │   ├── crud_user.py 
+│   │   ├── crud_service.py 
 │   ├── tests/              # Pytest tests 
 │   │   ├── conftest.py
 │   │   ├── test_health.py
