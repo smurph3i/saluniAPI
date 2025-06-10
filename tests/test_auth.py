@@ -1,9 +1,11 @@
+from datetime import timedelta
+from fastapi import status
 from fastapi.testclient import TestClient
 from jose import jwt
 from app.main import app
 from app.db.session import SessionLocal
 from app.models import User
-from app.core.security import get_password_hash
+from app.core.security import create_access_token, get_password_hash
 from app.core.config import settings
 
 client = TestClient(app)
@@ -102,3 +104,24 @@ class TestLogin:
         db.close()
 
         assert payload["sub"] == str(user.id)
+
+
+class TestTokenValidation:
+    def test_expired_token():
+        expired_token = create_access_token("1", expires_delta=-1)
+        response = client.get(
+            "/protected",
+            headers={"Authorization": f"Bearer {expired_token}"}
+        )
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Token has expired"
+
+    def test_invalid_token(self):
+        # A garbage token that cannot be decoded
+        invalid_token = "this.is.not.a.valid.token"
+        response = client.get(
+            "/protected",
+            headers={"Authorization": f"Bearer {invalid_token}"}
+        )
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Could not validate credentials"

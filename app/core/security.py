@@ -4,11 +4,17 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from jose import JWTError, jwt
+from jose import JWTError, jwt, ExpiredSignatureError
 
 from app.core.config import settings
 from app.db.deps import get_db
 from app.models import User
+
+# Secret key and algorithm for encoding and decoding JWT tokens
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+
 
 # Password hashing setup
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -49,6 +55,24 @@ def decode_access_token(token: str) -> Union[str, None]:
     except JWTError:
         return None
 
+# Function to decode and verify JWT token
+
+
+def verify_token(token: str) -> Union[User, None]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        # Here you would query your DB to get the user
+        # For example:
+        user = User.get_by_username(username)  # You should define this method
+        return user
+    except JWTError:
+        return None
+    except Exception:
+        return None
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
 
@@ -60,6 +84,12 @@ def get_current_user(
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    expired_token_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token has expired",
+        headers={"WWW-Authenticate": "Bearer"},
     )
     try:
         payload = jwt.decode(token, settings.secret_key,
@@ -67,8 +97,10 @@ def get_current_user(
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-    except JWTError:
-        raise credentials_exception
+    except ExpiredSignatureError as exc:
+        raise expired_token_exception from exc
+    except JWTError as exc:
+        raise credentials_exception from exc
 
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
