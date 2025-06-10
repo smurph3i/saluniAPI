@@ -1,9 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
+from jose import jwt
 from app.main import app
 from app.db.session import SessionLocal
 from app.models import User
 from app.core.security import get_password_hash
+from app.core.config import settings
 
 client = TestClient(app)
 
@@ -81,3 +83,21 @@ class TestLogin:
         finally:
             db_session.delete(user)
             db_session.commit()
+
+    def test_token_payload(self):
+        response = client.post("/api/v1/login", data={
+            "username": "loginuser@example.com",
+            "password": "securepassword123"
+        })
+        token = response.json()["access_token"]
+
+        payload = jwt.decode(token, settings.secret_key,
+                             algorithms=[settings.algorithm])
+        assert "sub" in payload
+
+        # Fetch the user ID from the DB
+        db = SessionLocal()
+        user = db.query(User).filter_by(email="loginuser@example.com").first()
+        db.close()
+
+        assert payload["sub"] == str(user.id)  # ✅ Expect user ID as string
