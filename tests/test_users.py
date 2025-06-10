@@ -1,12 +1,6 @@
-from fastapi.testclient import TestClient
-from app.main import app
 from app.db.session import SessionLocal
 from app.models import User
 from app.core.security import get_password_hash, create_access_token
-
-
-# Test client for FastAPI app
-client = TestClient(app)
 
 # Helper function to register a user
 
@@ -17,6 +11,10 @@ def register_user(email: str, password: str, full_name: str):
     db.commit()
     db.close()
 
+    from fastapi.testclient import TestClient  # ✅ Use TestClient locally if needed
+    from app.main import app
+    client = TestClient(app)
+
     return client.post("/api/v1/users/register", json={
         "email": email,
         "password": password,
@@ -26,9 +24,9 @@ def register_user(email: str, password: str, full_name: str):
 
 class TestUser:
     def test_register_user(self):
-        # Test user registration
         response = register_user(
-            "testuser@example.com", "securepassword123", "Test User")
+            "testuser@example.com", "securepassword123", "Test User"
+        )
 
         assert response.status_code == 201
         data = response.json()

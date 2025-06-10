@@ -24,7 +24,8 @@ SaluniAPI/
 │   │   │   ├── routes/ 
 │   │   │   │   ├── health.py
 │   │   │   │   ├── auth.py 
-│   │   │   │   ├── user.py 
+│   │   │   │   ├── login.py
+│   │   │   │   ├── users.py 
 │   │   │   │   ├── service.py 
 │   │   │   │    └── appointment.py 
 │   ├── crud/               # CRUD operations 
@@ -35,6 +36,7 @@ SaluniAPI/
 │   │   ├── test_health.py
 │   │   ├── test_users.py
 │   │   ├── test_auth.py 
+│   │   ├── test_security.py 
 │   │   └── test_service.py 
 ├── alembic/                # DB migrations 
 │       └── versions/ 
